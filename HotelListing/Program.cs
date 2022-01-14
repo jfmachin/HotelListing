@@ -1,3 +1,6 @@
+using HotelListing.Data;
+using HotelListing.Models.Mapper;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
@@ -13,16 +16,18 @@ Log.Logger = new LoggerConfiguration()
 try {
     Log.Information("Starting up");
     var builder = WebApplication.CreateBuilder(args);
+    var connectionString = builder.Configuration.GetConnectionString("sqlConnection");
     builder.Host.UseSerilog();
-    
+
     // services ...
-    builder.Services.AddControllers();
+    builder.Services.AddDbContext<AppDbContext>(x => x.UseSqlServer(connectionString));
     builder.Services.AddCors(x => {
         x.AddPolicy("AllowAll", x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     });
-
+    builder.Services.AddAutoMapper(typeof(MapperProfile));
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
+    builder.Services.AddControllers();
 
     var app = builder.Build();
     if (app.Environment.IsDevelopment()) {
