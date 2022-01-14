@@ -25,9 +25,11 @@ try {
         x.AddPolicy("AllowAll", x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
     });
     builder.Services.AddAutoMapper(typeof(MapperProfile));
+    builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-    builder.Services.AddControllers();
+    builder.Services.AddControllers().AddNewtonsoftJson(
+        x => x.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
     var app = builder.Build();
     if (app.Environment.IsDevelopment()) {
